@@ -4,52 +4,87 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shishu Store - Premium Kids Half Pants</title>
-    <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* Reset & Base Styles */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; line-height: 1.6; }
+        
+        /* Header */
+        header { 
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .logo { height: 50px; }
+        
+        /* Hero Section */
+        .hero {
+            height: 60vh;
+            background: 
+                linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.2)),
+                url('halfpants/images/hero-image.webp') center/cover no-repeat;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: white;
+        }
+        
+        /* Products */
+        .products { padding: 3rem 1rem; }
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        .product img {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+        
+        /* Size Chart */
+        .size-chart {
+            text-align: center;
+            padding: 2rem;
+            background: #f5f5f5;
+        }
+    </style>
 </head>
 <body>
     <header>
-        <div class="container">
-            <img src="images/logo.png" alt="Shishu Store Logo" class="logo">
-            <nav>
-                <ul>
-                    <li><a href="#">Home</a></li>
-                    <li><a href="#products">Products</a></li>
-                    <li><a href="#size-chart">Size Chart</a></li>
-                </ul>
-            </nav>
-        </div>
+        <img src="halfpants/images/logo.png" alt="Shishu Store" class="logo">
     </header>
 
     <section class="hero">
-        <div class="hero-content">
+        <div>
             <h1>Premium Half Pants for Kids</h1>
-            <p>Soft, durable fabrics with playful designs that kids love</p>
-            <a href="#products" class="btn">Shop Now</a>
+            <p>Soft, durable fabrics with playful designs</p>
         </div>
     </section>
 
-    <section id="products" class="products">
-        <div class="container">
-            <h2>Our Collection</h2>
-            <div class="product-grid">
-                <!-- Product items will be dynamically loaded -->
+    <section class="products">
+        <h2>Our Collection</h2>
+        <div class="product-grid">
+            <div class="product">
+                <img src="halfpants/images/blueberry-check.webp" alt="Blueberry Check">
+                <h3>Blueberry Check</h3>
+                <p>₹499</p>
             </div>
+            <!-- Add other products same way -->
         </div>
     </section>
 
-    <section id="size-chart" class="size-chart">
-        <div class="container">
-            <h2>Size Guide</h2>
-            <a href="images/size-chart.webp" target="_blank" class="btn">View Full Size Chart</a>
-        </div>
+    <section class="size-chart">
+        <h2>Size Guide</h2>
+        <a href="halfpants/images/size-chart.webp" target="_blank">
+            View Full Size Chart
+        </a>
     </section>
-
-    <footer>
-        <div class="container">
-            <p>&copy; 2023 Shishu Store. All rights reserved.</p>
-        </div>
-    </footer>
-
-    <script src="js/main.js"></script>
 </body>
 </html>
