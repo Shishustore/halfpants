@@ -2,64 +2,53 @@
 require_once __DIR__ . '/config.php';
 
 // Set secure headers
-header("Content-Security-Policy: default-src 'self'");
+header("Content-Type: application/json");
 header("X-Content-Type-Options: nosniff");
-header("Strict-Transport-Security: max-age=31536000; includeSubDomains");
 
 if (!$link) {
     http_response_code(500);
-    exit(json_encode(['status' => 'error', 'message' => 'System error']));
+    exit(json_encode(['status' => 'error', 'message' => 'System error. Please try again.']));
 }
 
-// Validate content type
-$contentType = $_SERVER['CONTENT_TYPE'] ?? '';
-if (stripos($contentType, 'application/json') === false) {
-    http_response_code(400);
-    exit(json_encode(['status' => 'error', 'message' => 'Invalid request']));
-}
-
-// Get and validate input
 $json = file_get_contents('php://input');
 $data = json_decode($json, true);
 
-if (json_last_error() !== JSON_ERROR_NONE) {
+if (json_last_error() !== JSON_ERROR_NONE || !$data) {
     http_response_code(400);
-    exit(json_encode(['status' => 'error', 'message' => 'Invalid data']));
+    exit(json_encode(['status' => 'error', 'message' => 'Invalid data provided.']));
 }
 
-// Sanitize input
+// Sanitize and validate inputs
 $phone = preg_replace('/[^0-9]/', '', $data['phone'] ?? '');
 $name = substr(sanitize_input($data['name'] ?? ''), 0, 100);
 $address = substr(sanitize_input($data['address'] ?? ''), 0, 255);
 
-// Validate phone number
 if (strlen($phone) < 7 || strlen($phone) > 15) {
     http_response_code(400);
-    exit(json_encode(['status' => 'error', 'message' => 'Invalid phone number']));
+    exit(json_encode(['status' => 'error', 'message' => 'Invalid phone number format.']));
 }
 
 try {
-    // Prepare and execute statement
-    $stmt = mysqli_prepare($link, "INSERT INTO leads (phone, name, address) VALUES (?, ?, ?) 
-            ON DUPLICATE KEY UPDATE name=VALUES(name), address=VALUES(address)");
-    
+    // USE PARAMETERIZED QUERY TO PREVENT SQL INJECTION
+    $stmt = mysqli_prepare($link, "INSERT INTO leads (phone, name, address) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE name = VALUES(name), address = VALUES(address)");
+
     if (!$stmt) {
-        throw new Exception("Database error");
+        throw new Exception("Database statement preparation failed.");
     }
-    
+
     mysqli_stmt_bind_param($stmt, "sss", $phone, $name, $address);
     mysqli_stmt_execute($stmt);
     mysqli_stmt_close($stmt);
-    
+
     // Securely write to CSV
     write_to_csv('leads.csv', [$name, $phone, $address, date('Y-m-d H:i:s')]);
-    
+
     echo json_encode(['status' => 'success']);
 
 } catch (Exception $e) {
-    error_log("Lead Error: " . $e->getMessage());
+    error_log("Lead Save Error: " . $e->getMessage());
     http_response_code(500);
-    echo json_encode(['status' => 'error', 'message' => 'Could not save information']);
+    echo json_encode(['status' => 'error', 'message' => 'Could not save your information.']);
 }
 
 mysqli_close($link);
