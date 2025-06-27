@@ -2,92 +2,66 @@
 require_once __DIR__ . '/config.php';
 
 // Set secure headers
-header("Content-Security-Policy: default-src 'self'");
+header("Content-Type: application/json");
 header("X-Content-Type-Options: nosniff");
-header("Strict-Transport-Security: max-age=31536000; includeSubDomains");
-header("Referrer-Policy: strict-origin-when-cross-origin");
 
 if (!$link) {
     http_response_code(500);
-    exit(json_encode(['status' => 'error', 'message' => 'System error']));
+    exit(json_encode(['status' => 'error', 'message' => 'System error. Please try again.']));
 }
 
 try {
-    // Validate content type
-    $contentType = $_SERVER['CONTENT_TYPE'] ?? '';
-    if (stripos($contentType, 'application/json') === false) {
-        throw new Exception("Invalid content type");
-    }
-    
-    // Get and validate input
     $json = file_get_contents('php://input');
-    if (strlen($json) > 100000) { // ~100KB max
-        throw new Exception("Payload too large");
-    }
-    
     $data = json_decode($json, true);
-    if (json_last_error() !== JSON_ERROR_NONE) {
-        throw new Exception("Invalid JSON data");
+
+    if (json_last_error() !== JSON_ERROR_NONE || !$data) {
+        throw new Exception("Invalid JSON data received.");
     }
 
-    // Validate required fields
-    $required = ['customer', 'cart', 'summary'];
-    foreach ($required as $field) {
-        if (empty($data[$field])) {
-            throw new Exception("Missing required field: $field");
-        }
+    // --- Sanitize Customer Data ---
+    $customer = $data['customer'] ?? [];
+    $customer_name = substr(sanitize_input($customer['name'] ?? ''), 0, 100);
+    $customer_phone = preg_replace('/[^0-9]/', '', $customer['phone'] ?? '');
+    $customer_address = substr(sanitize_input($customer['address'] ?? ''), 0, 255);
+
+    if (strlen($customer_phone) < 7 || strlen($customer_phone) > 15) {
+        throw new Exception("Invalid phone number format.");
     }
 
-    // Sanitize customer data
-    $customer = [
-        'name' => substr(sanitize_input($data['customer']['name']), 0, 100),
-        'phone' => preg_replace('/[^0-9]/', '', $data['customer']['phone']),
-        'address' => substr(sanitize_input($data['customer']['address']), 0, 255)
-    ];
-    
-    // Validate phone number
-    if (strlen($customer['phone']) < 7 || strlen($customer['phone']) > 15) {
-        throw new Exception("Invalid phone number");
-    }
-    
-    // Process cart items
-    $cart = [];
-    foreach ($data['cart'] as $item) {
-        if (empty($item['name']) || empty($item['size']) || !isset($item['quantity']) || !isset($item['price'])) {
-            continue; // Skip invalid items
-        }
-        
-        $cart[] = [
-            'name' => substr(sanitize_input($item['name']), 0, 100),
-            'size' => substr(sanitize_input($item['size']), 0, 20),
-            'quantity' => min(max((int)$item['quantity'], 1), 10), // 1-10 items
-            'price' => min(max((float)$item['price'], 0), 10000) // 0-10,000 Tk
-        ];
-    }
-    
-    if (count($cart) === 0) {
-        throw new Exception("Cart is empty");
-    }
-    
-    // Process summary
-    $summary = [
-        'subtotal' => min(max((float)$data['summary']['subtotal'], 0), 100000),
-        'discount' => min(max((float)$data['summary']['discount'], 0), 100000),
-        'shipping' => min(max((float)$data['summary']['shipping'], 0), 1000),
-        'grandTotal' => min(max((float)$data['summary']['grandTotal'], 0), 100000),
-        'shipping_location' => substr(sanitize_input($data['summary']['shipping_location']), 0, 100)
-    ];
+    // --- Sanitize Cart and Summary ---
+    $cart_json = json_encode($data['cart'] ?? []);
+    $summary_json = json_encode($data['summary'] ?? []);
+    $grand_total = floatval($data['summary']['grandTotal'] ?? 0);
 
-    // ... rest of database transaction code from previous version ...
-    // [Keep the database transaction code unchanged]
+    // --- Database Transaction ---
+    mysqli_begin_transaction($link);
+
+    // USE PARAMETERIZED QUERY
+    $stmt = mysqli_prepare($link, "INSERT INTO orders (customer_name, customer_phone, customer_address, cart_details, summary_details, grand_total) VALUES (?, ?, ?, ?, ?, ?)");
+    if (!$stmt) {
+        throw new Exception('Database statement preparation failed.');
+    }
+
+    mysqli_stmt_bind_param($stmt, "sssssd", $customer_name, $customer_phone, $customer_address, $cart_json, $summary_json, $grand_total);
+    mysqli_stmt_execute($stmt);
+
+    $order_id = mysqli_insert_id($link);
+    mysqli_stmt_close($stmt);
+
+    mysqli_commit($link);
+
+    // Securely write to CSV
+    $csv_data = [$order_id, $customer_name, $customer_phone, $grand_total, date('Y-m-d H:i:s')];
+    write_to_csv('orders.csv', $csv_data);
+
+    echo json_encode(['status' => 'success', 'order_id' => $order_id]);
 
 } catch (Exception $e) {
-    // Log detailed error internally
-    error_log("Order Error: " . $e->getMessage() . " | " . json_encode($_SERVER));
-    
-    // Generic message for client
+    mysqli_rollback($link); // Roll back transaction on error
+    error_log("Order Save Error: " . $e->getMessage());
     http_response_code(400);
-    echo json_encode(['status' => 'error', 'message' => 'Could not process your request']);
-    exit;
+    echo json_encode(['status' => 'error', 'message' => 'Could not process your order.']);
 }
+
+mysqli_close($link);
 ?>
