@@ -4,87 +4,35 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shishu Store - Premium Kids Half Pants</title>
-    <style>
-        /* Reset & Base Styles */
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', sans-serif; line-height: 1.6; }
-        
-        /* Header */
-        header { 
-            background: white;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            padding: 1rem;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-        .logo { height: 50px; }
-        
-        /* Hero Section */
-        .hero {
-            height: 60vh;
-            background: 
-                linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.2)),
-                url('halfpants/images/hero-image.webp') center/cover no-repeat;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            color: white;
-        }
-        
-        /* Products */
-        .products { padding: 3rem 1rem; }
-        .product-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 2rem;
-            margin-top: 2rem;
-        }
-        .product img {
-            width: 100%;
-            height: 250px;
-            object-fit: cover;
-            border-radius: 8px;
-        }
-        
-        /* Size Chart */
-        .size-chart {
-            text-align: center;
-            padding: 2rem;
-            background: #f5f5f5;
-        }
-    </style>
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
     <header>
-        <img src="halfpants/images/logo.png" alt="Shishu Store" class="logo">
+        <img src="images/logo.png" alt="Shishu Store Logo" class="logo">
     </header>
 
-    <section class="hero">
-        <div>
+    <main>
+        <section class="hero">
             <h1>Premium Half Pants for Kids</h1>
-            <p>Soft, durable fabrics with playful designs</p>
-        </div>
-    </section>
+            <p>Soft, durable fabrics with playful designs for your little ones.</p>
+        </section>
 
-    <section class="products">
-        <h2>Our Collection</h2>
-        <div class="product-grid">
-            <div class="product">
-                <img src="halfpants/images/blueberry-check.webp" alt="Blueberry Check">
-                <h3>Blueberry Check</h3>
-                <p>₹499</p>
+        <section class="products container">
+            <h2>Our Collection</h2>
+            <div class="product-grid">
+                </div>
+        </section>
+
+        <section class="size-chart">
+            <div class="container">
+                <h2>Size Guide</h2>
+                 <a href="images/size-chart.webp" target="_blank">
+                    <img src="images/size-chart.webp" alt="Size Chart for Kids Half Pants">
+                </a>
             </div>
-            <!-- Add other products same way -->
-        </div>
-    </section>
+        </section>
+    </main>
 
-    <section class="size-chart">
-        <h2>Size Guide</h2>
-        <a href="halfpants/images/size-chart.webp" target="_blank">
-            View Full Size Chart
-        </a>
-    </section>
+    <script src="js/main.js"></script>
 </body>
 </html>
