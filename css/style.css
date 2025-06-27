@@ -1,15 +1,17 @@
 /* Base Styles */
 :root {
-    --primary: #4a6fa5;
-    --secondary: #166088;
-    --light: #f8f9fa;
-    --dark: #212529;
+    --primary-color: #4a6fa5;
+    --secondary-color: #166088;
+    --light-color: #f8f9fa;
+    --dark-color: #212529;
+    --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 body {
-    font-family: 'Segoe UI', sans-serif;
+    font-family: var(--font-family);
     line-height: 1.6;
-    color: var(--dark);
+    color: var(--dark-color);
+    background-color: #fdfdfd;
     margin: 0;
     padding: 0;
 }
@@ -18,61 +20,131 @@ body {
     width: 90%;
     max-width: 1200px;
     margin: 0 auto;
-    padding: 0 15px;
+    padding: 2rem 15px;
 }
 
-/* Header Styles */
+h1, h2, h3 {
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+}
+
+/* Header */
 header {
     background: white;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
     position: sticky;
     top: 0;
-    z-index: 100;
+    z-index: 1000;
     padding: 1rem 0;
+    text-align: center;
 }
 
 .logo {
     height: 50px;
+    width: auto;
 }
 
 /* Hero Section */
 .hero {
-    background: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.2)), 
+    background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)),
                 url('../images/hero-image.webp') center/cover no-repeat;
-    height: 60vh;
+    min-height: 50vh;
     display: flex;
+    flex-direction: column;
+    justify-content: center;
     align-items: center;
     text-align: center;
     color: white;
+    padding: 2rem;
 }
 
-/* Product Grid */
+.hero h1 {
+    font-size: 2.5rem;
+    color: white;
+    margin-bottom: 0.5rem;
+}
+
+/* Products Section */
 .product-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
     gap: 2rem;
-    margin-top: 2rem;
+    margin-top: 1rem;
+}
+
+.product-item {
+    background: white;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    overflow: hidden;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.product-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.product-item img {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+}
+
+.product-item h3 {
+    margin: 1rem 0 0.5rem 0;
+}
+
+.product-item p {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: var(--secondary-color);
+    margin-bottom: 1rem;
 }
 
 /* Buttons */
 .btn {
     display: inline-block;
-    background: var(--primary);
+    background: var(--primary-color);
     color: white;
     padding: 0.8rem 1.5rem;
+    border: none;
     border-radius: 4px;
     text-decoration: none;
-    transition: all 0.3s ease;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
 }
 
 .btn:hover {
-    background: var(--secondary);
-    transform: translateY(-2px);
+    background: var(--secondary-color);
 }
+
+.product-item .btn {
+    width: 100%;
+    border-radius: 0;
+    padding: 1rem;
+}
+
+/* Size Chart */
+.size-chart {
+    text-align: center;
+    padding: 2rem 0;
+    background-color: var(--light-color);
+}
+.size-chart img {
+    max-width: 100%;
+    height: auto;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+}
+
 
 /* Responsive Design */
 @media (max-width: 768px) {
-    .hero {
-        height: 50vh;
+    .hero h1 {
+        font-size: 2rem;
     }
 }
